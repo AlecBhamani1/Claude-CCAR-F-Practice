@@ -1,4 +1,4 @@
-# Krahnborn · CCAR-F Exam Academy
+# CCAR-F Exam Academy
 
 An interactive, single-file study app for the **Claude Certified Architect – Foundation (CCAR-F)** exam.
 

@@ -844,13 +844,22 @@ function renderQ(){
     if(q.multi){const ix=picked.indexOf(j);if(ix>=0)picked.splice(ix,1);else{picked.push(j);if(picked.length>max)picked.shift();}}
     else{Q.ans[Q.i]=[j];}
     renderQ();});
-  $$("#quizbox [data-jump]").forEach(b=>b.onclick=()=>{Q.i=+b.dataset.jump;renderQ();});
+  const scrollQTop=()=>{const el=$("#quizbox");if(el)el.scrollIntoView({block:"start"});};
+  $$("#quizbox [data-jump]").forEach(b=>b.onclick=()=>{Q.i=+b.dataset.jump;renderQ();scrollQTop();});
   const on=(id,f)=>{const el=$(id);if(el)el.onclick=f;};
-  on("#qprev",()=>{Q.i--;renderQ();});on("#qnext",()=>{Q.i++;renderQ();});
+  on("#qprev",()=>{Q.i--;renderQ();scrollQTop();});
+  on("#qnext",()=>{const b=$("#qnext");
+    if(!showFb&&q.multi&&picked.length>0&&picked.length<q.correct.length&&!b.dataset.armed){
+      b.dataset.armed="1";b.textContent="Select "+q.correct.length+" — Next anyway?";return;}
+    Q.i++;renderQ();scrollQTop();});
   on("#qcheck",()=>{Q.checked[Q.i]=true;renderQ();});
   on("#qflagbtn",()=>{Q.flag[Q.i]=!Q.flag[Q.i];renderQ();});
-  on("#qsubmit",()=>{const un=Q.ans.filter(a=>!a.length).length;const b=$("#qsubmit");
-    if(un&&!b.dataset.armed){b.dataset.armed="1";b.textContent=un+" unanswered — submit anyway?";return;}
+  on("#qsubmit",()=>{const b=$("#qsubmit");
+    const un=Q.ans.filter(a=>!a.length).length;
+    const partial=Q.def.qs.filter((qq,i)=>qq.multi&&Q.ans[i].length&&Q.ans[i].length<qq.correct.length).length;
+    if((un||partial)&&!b.dataset.armed){b.dataset.armed="1";
+      const parts=[];if(un)parts.push(un+" unanswered");if(partial)parts.push(partial+" incomplete");
+      b.textContent=parts.join(", ")+" — submit anyway?";return;}
     finish();});
   on("#qresults",showResults);
   on("#qquit",()=>{const b=$("#qquit");
